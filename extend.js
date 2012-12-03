@@ -5,7 +5,46 @@ Extend = function() {
         target = arguments[0] || {},
         i = 1,
         length = arguments.length,
-        deep = false;
+        deep = false,
+        // helper which replicates the jquery internal functions
+        objectHelper = {
+            hasOwn : Object.prototype.hasOwnProperty,
+            class2type : {},
+            type: function( obj ) {
+                return obj == null ?
+                    String( obj ) :
+                    objectHelper.class2type[ Object.prototype.toString.call(obj) ] || "object";
+            },
+            isPlainObject: function( obj ) {
+                if ( !obj || objectHelper.type(obj) !== "object" || obj.nodeType || objectHelper.isWindow( obj ) ) {
+                    return false;
+                }
+
+                try {
+                    if ( obj.constructor &&
+                        !objectHelper.hasOwn.call(obj, "constructor") &&
+                        !objectHelper.hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
+                        return false;
+                    }
+                } catch ( e ) {
+                    return false;
+                }
+
+                var key;
+                for ( key in obj ) {}
+
+                return key === undefined || objectHelper.hasOwn.call( obj, key );
+            },
+            isArray: Array.isArray || function( obj ) {
+                return objectHelper.type(obj) === "array";
+            },
+            isFunction: function( obj ) {
+                return objectHelper.type(obj) === "function";
+            },
+            isWindow: function( obj ) {
+                return obj != null && obj == obj.window;
+            }
+        };  // end of objectHelper
 
     // Handle a deep copy situation
     if ( typeof target === "boolean" ) {
@@ -64,44 +103,3 @@ Extend = function() {
     return target;
 };
 
-// helper which replicates the jquery internal functions
-var objectHelper = {
-
-    hasOwn : Object.prototype.hasOwnProperty,
-    class2type : {},
-
-    type: function( obj ) {
-        return obj == null ?
-            String( obj ) :
-            objectHelper.class2type[ Object.prototype.toString.call(obj) ] || "object";
-    },
-    isPlainObject: function( obj ) {
-        if ( !obj || objectHelper.type(obj) !== "object" || obj.nodeType || objectHelper.isWindow( obj ) ) {
-            return false;
-        }
-
-        try {
-            if ( obj.constructor &&
-                !objectHelper.hasOwn.call(obj, "constructor") &&
-                !objectHelper.hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
-                return false;
-            }
-        } catch ( e ) {
-            return false;
-        }
-
-        var key;
-        for ( key in obj ) {}
-
-        return key === undefined || objectHelper.hasOwn.call( obj, key );
-    },
-    isArray: Array.isArray || function( obj ) {
-        return objectHelper.type(obj) === "array";
-    },
-    isFunction: function( obj ) {
-        return objectHelper.type(obj) === "function";
-    },
-    isWindow: function( obj ) {
-        return obj != null && obj == obj.window;
-    }
-};  // end of objectHelper
