@@ -1,6 +1,6 @@
 
 Extend = function() {
-//jQuery.extend = jQuery.fn.extend = function() {
+
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
         i = 1,
@@ -20,11 +20,11 @@ Extend = function() {
         target = {};
     }
 
-    // extend jQuery itself if only one argument is passed
+    // If no second argument is used then this can extend an object that is using this method
     if ( length === i ) {
         target = this;
         --i;
-    }
+    } 
 
     for ( ; i < length; i++ ) {
         // Only deal with non-null/undefined values
@@ -67,46 +67,33 @@ Extend = function() {
 // helper which replicates the jquery internal functions
 var objectHelper = {
 
-    core_push : Array.prototype.push,
-    core_slice : Array.prototype.slice,
-    core_indexOf : Array.prototype.indexOf,
-    core_toString : Object.prototype.toString,
-    core_hasOwn : Object.prototype.hasOwnProperty,
-    core_trim : String.prototype.trim,
+    hasOwn : Object.prototype.hasOwnProperty,
     class2type : {},
 
     type: function( obj ) {
         return obj == null ?
             String( obj ) :
-            objectHelper.class2type[ objectHelper.core_toString.call(obj) ] || "object";
+            objectHelper.class2type[ Object.prototype.toString.call(obj) ] || "object";
     },
     isPlainObject: function( obj ) {
-        // Must be an Object.
-        // Because of IE, we also have to check the presence of the constructor property.
-        // Make sure that DOM nodes and window objects don't pass through, as well
         if ( !obj || objectHelper.type(obj) !== "object" || obj.nodeType || objectHelper.isWindow( obj ) ) {
             return false;
         }
 
         try {
-            // Not own constructor property must be Object
             if ( obj.constructor &&
-                !objectHelper.core_hasOwn.call(obj, "constructor") &&
-                !objectHelper.core_hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
+                !objectHelper.hasOwn.call(obj, "constructor") &&
+                !objectHelper.hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
                 return false;
             }
         } catch ( e ) {
-            // IE8,9 Will throw exceptions on certain host objects #9897
             return false;
         }
-
-        // Own properties are enumerated firstly, so to speed up,
-        // if last one is own, then all properties are own.
 
         var key;
         for ( key in obj ) {}
 
-        return key === undefined || objectHelper.core_hasOwn.call( obj, key );
+        return key === undefined || objectHelper.hasOwn.call( obj, key );
     },
     isArray: Array.isArray || function( obj ) {
         return objectHelper.type(obj) === "array";
